@@ -1,6 +1,7 @@
 
 import java.util.ArrayList;
 import javax.swing.JOptionPane;
+import javax.swing.JTextPane;
 import javax.swing.table.DefaultTableModel;
 
 /*
@@ -137,12 +138,7 @@ public class listagemVIEW extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnVenderActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnVenderActionPerformed
-        String id = id_produto_venda.getText();
-        
-        ProdutosDAO produtosdao = new ProdutosDAO();
-        
-        //produtosdao.venderProduto(Integer.parseInt(id));
-        listarProdutos();
+         venderProdutoNaTela(id_produto_venda);
     }//GEN-LAST:event_btnVenderActionPerformed
 
     private void btnVendasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnVendasActionPerformed
@@ -202,27 +198,61 @@ public class listagemVIEW extends javax.swing.JFrame {
     private javax.swing.JTable listaProdutos;
     // End of variables declaration//GEN-END:variables
 
-    private void listarProdutos(){
-        try {
-            ProdutosDAO produtosdao = new ProdutosDAO();
-            
-            DefaultTableModel model = (DefaultTableModel) listaProdutos.getModel();
-            model.setNumRows(0);
-            
-            ArrayList<ProdutosDTO> listagem = produtosdao.listarProdutos();
-            
-            for(ProdutosDTO produto : listagem){
-                model.addRow(new Object[]{
-                    produto.getId(),
-                    produto.getNome(),
-                    produto.getValor(),
-                    produto.getStatus()
-                });
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Erro ao listar produtos: " + e.getMessage());
+         private void venderProdutoNaTela(JTextPane id_produto_venda) {
+    try {
+        // Verifica se o campo de texto não está vazio e contém um valor válido
+        String idText = id_produto_venda.getText();
+        if (idText.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Por favor, insira o ID do produto.");
+            return;
         }
-    
+        
+        // Converte o ID do produto para inteiro
+        int idProduto = Integer.parseInt(idText);
+
+        // Cria uma instância de ProdutosDAO
+        ProdutosDAO produtosdao = new ProdutosDAO();
+        
+        // Chama o método para vender o produto
+        int resultado = produtosdao.venderProduto(idProduto);
+        
+        if (resultado > 0) {
+            JOptionPane.showMessageDialog(this, "Produto vendido com sucesso!");
+            
+            // Atualiza a tabela para refletir a mudança de status
+            listarProdutos();  // Recarrega a lista de produtos com o status atualizado
+        } else {
+            JOptionPane.showMessageDialog(this, "Erro ao vender o produto.");
+        }
+    } catch (NumberFormatException ex) {
+        JOptionPane.showMessageDialog(this, "Por favor, insira um ID válido.");
+    } catch (Exception e) {
+        e.printStackTrace();
+        JOptionPane.showMessageDialog(this, "Erro ao vender produto: " + e.getMessage());
     }
+}
+
+// Método para listar os produtos (como já estava configurado)
+private void listarProdutos(){
+    try {
+        ProdutosDAO produtosdao = new ProdutosDAO();
+        
+        DefaultTableModel model = (DefaultTableModel) listaProdutos.getModel();
+        model.setNumRows(0);
+        
+        ArrayList<ProdutosDTO> listagem = produtosdao.listarProdutos();
+        
+        for(ProdutosDTO produto : listagem){
+            model.addRow(new Object[]{
+                produto.getId(),
+                produto.getNome(),
+                produto.getValor(),
+                produto.getStatus()
+            });
+        }
+    } catch (Exception e) {
+        e.printStackTrace();
+        JOptionPane.showMessageDialog(this, "Erro ao listar produtos: " + e.getMessage());
+            }
+        }
 }

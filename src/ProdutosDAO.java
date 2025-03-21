@@ -18,9 +18,6 @@ import java.sql.SQLException;
 public class ProdutosDAO {
     
     Connection conn;
-    PreparedStatement prep;
-    ResultSet resultset;
-    ArrayList<ProdutosDTO> listagem = new ArrayList<>();
     
     public int cadastrarProduto (ProdutosDTO pro){
                 
@@ -75,5 +72,33 @@ public class ProdutosDAO {
         throw ex;
         }
         return listagem;
- }   
+ }
+    public int venderProduto(int idProduto) {
+    int status = 0;
+    try {
+        conn = new conectaDAO().connectDB();
+
+        String sql = "UPDATE produtos SET status = ? WHERE id = ?";
+        
+        try (PreparedStatement st = conn.prepareStatement(sql)) {
+            st.setString(1, "Vendido"); 
+            st.setInt(2, idProduto);      
+
+            status = st.executeUpdate();
+        }
+
+    } catch (SQLException ex) {
+        System.out.println("Erro ao vender Produto: " + ex.getMessage());
+        return ex.getErrorCode();
+    } finally {
+        try {
+            if (conn != null) {
+                conn.close();
+            }
+        } catch (SQLException e) {
+            System.out.println("Erro ao fechar conexão: " + e.getMessage());
+        }
+    }
+    return status;
 }
+}    
