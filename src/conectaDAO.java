@@ -20,7 +20,7 @@ public class conectaDAO {
 
         try {
 
-            conn = DriverManager.getConnection("jdbc:mysql://localhost/uc11?user=root&password=Paulinho967&useSSL=false");
+            conn = DriverManager.getConnection("jdbc:mysql://localhost/uc11?user=root&password=Paulinho967&allowPublicKeyRetrieval=true&useSSL=false");
             System.out.println("Conexão estabelecida com sucesso!");
 
         } catch (SQLException erro) {

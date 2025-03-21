@@ -18,9 +18,6 @@ import java.sql.SQLException;
 public class ProdutosDAO {
     
     Connection conn;
-    PreparedStatement prep;
-    ResultSet resultset;
-    ArrayList<ProdutosDTO> listagem = new ArrayList<>();
     
     public int cadastrarProduto (ProdutosDTO pro){
                 
@@ -75,5 +72,59 @@ public class ProdutosDAO {
         throw ex;
         }
         return listagem;
- }   
+ }
+    public int venderProduto(int idProduto) {
+    int status = 0;
+    try {
+        conn = new conectaDAO().connectDB();
+
+        String sql = "UPDATE produtos SET status = ? WHERE id = ?";
+        
+        try (PreparedStatement st = conn.prepareStatement(sql)) {
+            st.setString(1, "Vendido"); 
+            st.setInt(2, idProduto);      
+
+            status = st.executeUpdate();
+        }
+
+    } catch (SQLException ex) {
+        System.out.println("Erro ao vender Produto: " + ex.getMessage());
+        return ex.getErrorCode();
+    } finally {
+        try {
+            if (conn != null) {
+                conn.close();
+            }
+        } catch (SQLException e) {
+            System.out.println("Erro ao fechar conexão: " + e.getMessage());
+        }
+    }
+    return status;
 }
+    
+    public ArrayList<ProdutosDTO> listarProdutosVendidos() throws SQLException {
+    ArrayList<ProdutosDTO> vendidos = new ArrayList<>();
+    
+    try (Connection conn = new conectaDAO().connectDB()) {
+        String sql = "SELECT * FROM produtos WHERE status = ?";
+        PreparedStatement stmt = conn.prepareStatement(sql);
+        stmt.setString(1, "Vendido");
+        
+        try (ResultSet rs = stmt.executeQuery()) {
+            while (rs.next()) {
+                ProdutosDTO pro = new ProdutosDTO();
+                pro.setId(rs.getInt("id"));
+                pro.setNome(rs.getString("nome"));
+                pro.setValor(rs.getInt("valor"));
+                pro.setStatus(rs.getString("status"));
+                vendidos.add(pro);
+            }
+        } 
+    } catch (SQLException ex) {
+        System.out.println("Erro ao listar produtos vendidos: " + ex.getMessage());
+        throw ex;
+    }
+    
+    return vendidos;
+    }
+}    
